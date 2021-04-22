@@ -47,9 +47,10 @@ using word = unsigned short;
 using func_t = unsigned int;
 using string_t = unsigned int;
 using qboolean = int;
-
+#ifdef ARRAYSIZE
+#undef ARRAYSIZE
+#endif
 #define ARRAYSIZE(p)		(sizeof(p)/sizeof(p[0]))
-
 // Prevent tons of unused windows definitions
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN

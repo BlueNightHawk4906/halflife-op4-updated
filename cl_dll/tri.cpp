@@ -22,6 +22,20 @@
 #include "tri.h"
 extern IParticleMan *g_pParticleMan;
 
+//RENDERERS START
+#include "bsprenderer.h"
+#include "propmanager.h"
+#include "particle_engine.h"
+#include "watershader.h"
+#include "mirrormanager.h"
+
+#include "studio.h"
+#include "StudioModelRenderer.h"
+#include "GameStudioModelRenderer.h"
+
+extern CGameStudioModelRenderer g_StudioRenderer;
+//RENDERERS END
+
 /*
 =================
 HUD_DrawNormalTriangles
@@ -32,6 +46,11 @@ Non-transparent triangles-- add them here
 void DLLEXPORT HUD_DrawNormalTriangles()
 {
 //	RecClDrawNormalTriangles();
+
+	//RENDERERS START
+	//2012-02-25
+	R_DrawNormalTriangles();
+	//RENDERERS END
 
 	gHUD.m_Spectator.DrawOverview();
 }
@@ -55,6 +74,12 @@ void DLLEXPORT HUD_DrawTransparentTriangles()
 	RunEventList();
 #endif
 
+	//RENDERERS START
+	//2012-02-25
+	R_DrawTransparentTriangles();
+	//RENDERERS END
+
 	if ( g_pParticleMan )
 		 g_pParticleMan->Update();
 }
+

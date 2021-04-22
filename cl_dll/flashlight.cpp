@@ -152,9 +152,13 @@ int CHudFlashlight::Draw(float flTime)
 
 		SPR_Set( m_hBeam, r, g, b );
 		SPR_DrawAdditive( 0, x, y, m_prcBeam );
+	}
 
+	if (gHUD.m_flFade || m_fOn)
+	{
 		drawNightVision();
 	}
+
 
 	// draw the flashlight energy level
 	x = ScreenWidth - m_iWidth - m_iWidth/2 ;
@@ -188,7 +192,7 @@ void CHudFlashlight::drawNightVision()
 		const auto width = gEngfuncs.pfnSPR_Width( m_nvSprite, 0 );
 		const auto height = gEngfuncs.pfnSPR_Height( m_nvSprite, 0 );
 
-		gEngfuncs.pfnSPR_Set( m_nvSprite, 0, 170, 0 );
+		gEngfuncs.pfnSPR_Set( m_nvSprite, 0, gHUD.m_flFade * 170, 0 );
 
 		wrect_t drawingRect;
 

@@ -161,6 +161,10 @@ void CFuncConveyor :: Spawn()
 	if ( !(pev->spawnflags & SF_CONVEYOR_VISUAL) )
 		SetBits( pev->flags, FL_CONVEYOR );
 
+	//RENDERERS START
+	pev->effects |= FL_CONVEYOR;
+	//RENDERERS END
+
 	// HACKHACK - This is to allow for some special effects
 	if ( pev->spawnflags & SF_CONVEYOR_NOTSOLID )
 	{
@@ -956,3 +960,19 @@ void CPendulum :: RopeTouch ( CBaseEntity *pOther )
 }
 
 
+//RENDERERS START
+class CFuncMirror : public CFuncWall
+{
+public:
+	void	Spawn(void);
+};
+
+LINK_ENTITY_TO_CLASS(func_mirror, CFuncMirror);
+LINK_ENTITY_TO_CLASS(func_detail_ext, CFuncWall);
+
+void CFuncMirror::Spawn(void)
+{
+	CFuncWall::Spawn();
+	pev->effects |= FL_MIRROR;
+}
+//RENDERERS END

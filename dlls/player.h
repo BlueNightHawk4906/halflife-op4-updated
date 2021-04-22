@@ -404,6 +404,12 @@ public:
 		m_bIsClimbing = bIsClimbing;
 	}
 
+	//RENDERERS START
+	BOOL m_bUpdateEffects;
+	void ClearEffects(void);
+	void SendInitMessages(void);
+	//RENDERERS END
+
 private:
 	CRope* m_pRope;
 	float m_flLastClimbTime = 0;

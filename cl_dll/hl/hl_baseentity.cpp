@@ -52,7 +52,9 @@ void CBaseEntity :: MakeDormant() { }
 int CBaseEntity :: IsDormant() { return 0; }
 BOOL CBaseEntity :: IsInWorld() { return TRUE; }
 int CBaseEntity::ShouldToggle( USE_TYPE useType, BOOL currentState ) { return 0; }
-int	CBaseEntity :: DamageDecal( int bitsDamageType ) { return -1; }
+//RENDERERS START
+char* CBaseEntity::DamageDecal(int bitsDamageType) { return NULL; }
+//RENDERERS END
 CBaseEntity * CBaseEntity::Create( const char *szName, const Vector &vecOrigin, const Vector &vecAngles, edict_t *pentOwner ) { return NULL; }
 void CBaseEntity::SUB_Remove() { }
 
@@ -205,7 +207,6 @@ int CBaseMonster :: CanPlaySequence( BOOL fDisregardMonsterState, int interruptL
 BOOL CBaseMonster :: FindLateralCover ( const Vector &vecThreat, const Vector &vecViewOffset ) { return FALSE; }
 Vector CBaseMonster :: ShootAtEnemy( const Vector &shootOrigin ) { return g_vecZero; }
 BOOL CBaseMonster :: FacingIdeal() { return FALSE; }
-BOOL CBaseMonster :: FCanActiveIdle () { return FALSE; }
 void CBaseMonster::PlaySentence( const char *pszSentence, float duration, float volume, float attenuation ) { }
 void CBaseMonster::PlayScriptedSentence( const char *pszSentence, float duration, float volume, float attenuation, BOOL bConcurrent, CBaseEntity *pListener ) { }
 void CBaseMonster::SentenceStop() { }
@@ -307,7 +308,9 @@ void ClearMultiDamage() { }
 void ApplyMultiDamage(entvars_t *pevInflictor, entvars_t *pevAttacker ) { }
 void AddMultiDamage( entvars_t *pevInflictor, CBaseEntity *pEntity, float flDamage, int bitsDamageType) { }
 void SpawnBlood(Vector vecSpot, int bloodColor, float flDamage) { }
-int DamageDecal( CBaseEntity *pEntity, int bitsDamageType ) { return 0; }
+//RENDERERS START
+char* DamageDecal(CBaseEntity* pEntity, int bitsDamageType, Vector vecSrc, Vector vecEnd) { return 0; }
+//RENDERERS END
 void DecalGunshot( TraceResult *pTrace, int iBulletType ) { }
 void EjectBrass ( const Vector &vecOrigin, const Vector &vecVelocity, float rotation, int model, int soundtype ) { }
 int CBasePlayerItem::Restore( class CRestore & ) { return 1; }

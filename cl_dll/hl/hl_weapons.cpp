@@ -600,6 +600,9 @@ void SetLocalBody( int id, int body )
 
 	if( pWeapon )
 	{
+		if (!pWeapon->pev)
+			pWeapon->pev = new entvars_s;
+
 		pWeapon->pev->body = body;
 	}
 }

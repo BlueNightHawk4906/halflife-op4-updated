@@ -170,6 +170,9 @@ public:
 	virtual int Classify () { return CLASS_NONE; }
 	virtual void DeathNotice ( entvars_t *pevChild ) {}// monster maker children use this to tell the monster maker that they have died.
 
+//RENDERERS START
+	virtual void	SendInitMessage(CBasePlayer* player) {};
+	//RENDERERS END
 
 	static	TYPEDESCRIPTION m_SaveData[];
 
@@ -192,7 +195,9 @@ public:
 	virtual float	GetDelay() { return 0; }
 	virtual int		IsMoving() { return pev->velocity != g_vecZero; }
 	virtual void	OverrideReset() {}
-	virtual int		DamageDecal( int bitsDamageType );
+	//RENDERERS START
+	virtual char* DamageDecal(int bitsDamageType);
+	//RENDERERS END
 	// This is ONLY used by the node graph to test movement through a door
 	virtual void	SetToggleState( int state ) {}
 	virtual void    StartSneaking() {}

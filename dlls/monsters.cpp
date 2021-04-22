@@ -3242,20 +3242,6 @@ BOOL CBaseMonster :: FacingIdeal()
 	return FALSE;
 }
 
-//=========================================================
-// FCanActiveIdle
-//=========================================================
-BOOL CBaseMonster :: FCanActiveIdle ()
-{
-	/*
-	if ( m_MonsterState == MONSTERSTATE_IDLE && m_IdealMonsterState == MONSTERSTATE_IDLE && !IsMoving() )
-	{
-		return TRUE;
-	}
-	*/
-	return FALSE;
-}
-
 
 void CBaseMonster::PlaySentence( const char *pszSentence, float duration, float volume, float attenuation )
 {

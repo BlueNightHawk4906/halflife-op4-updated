@@ -137,6 +137,8 @@ void CRpgRocket :: Spawn()
 //=========================================================
 void CRpgRocket :: RocketTouch ( CBaseEntity *pOther )
 {
+
+
 	if ( m_pLauncher )
 	{
 		// my launcher is still around, tell it I'm dead.

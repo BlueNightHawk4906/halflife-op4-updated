@@ -31,6 +31,20 @@
 #include "cl_dll.h"
 #include "ammo.h"
 
+//RENDERERS START
+#include "frustum.h"
+
+struct fog_settings_t
+{
+	vec3_t color;
+	int start;
+	int end;
+
+	bool affectsky;
+	bool active;
+};
+//RENDERERS END
+
 #define DHN_DRAWZERO 1
 #define DHN_2DIGITS  2
 #define DHN_3DIGITS  4
@@ -645,6 +659,23 @@ public:
 	void AddHudElem(CHudBase *p);
 	
 	float GetSensitivity();
+
+	//RENDERERS START
+	fog_settings_t m_pSkyFogSettings;
+	fog_settings_t m_pFogSettings;
+	FrustumCheck viewFrustum;
+
+	int  _cdecl MsgFunc_SetFog(const char* pszName, int iSize, void* pbuf);
+	int  _cdecl MsgFunc_LightStyle(const char* pszName, int iSize, void* pbuf);
+	int  _cdecl MsgFunc_StudioDecal(const char* pszName, int iSize, void* pbuf);
+	int  _cdecl MsgFunc_FreeEnt(const char* pszName, int iSize, void* pbuf);
+
+	int  _cdecl MsgFunc_CreateDecal(const char* pszName, int iSize, void* pbuf);
+	int  _cdecl MsgFunc_SkyMark_S(const char* pszName, int iSize, void* pbuf);
+	int  _cdecl MsgFunc_SkyMark_W(const char* pszName, int iSize, void* pbuf);
+	int  _cdecl MsgFunc_DynLight(const char* pszName, int iSize, void* pbuf);
+	int  _cdecl MsgFunc_CreateSystem(const char* pszName, int iSize, void* pbuf);
+	//RENDERERS END
 };
 
 class TeamFortressViewport;

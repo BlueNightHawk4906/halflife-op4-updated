@@ -703,3 +703,9 @@ inline CEntityEnumeratorWithStart<T, FindByTargetnameFunctor<T>> UTIL_FindEntiti
 {
 	return { pszName, pStartEntity };
 }
+
+//RENDERERS START
+extern void			UTIL_Particle(char* szName, Vector vecOrigin, Vector vDirection, int iType);
+extern void			UTIL_CustomDecal(TraceResult* pTrace, const char* name, int persistent = 0);
+extern void			UTIL_StudioDecal(Vector normal, Vector position, const char* name, int entindex);
+//RENDERERS END

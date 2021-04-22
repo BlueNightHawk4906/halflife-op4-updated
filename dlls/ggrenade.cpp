@@ -83,6 +83,11 @@ void CGrenade::Explode( TraceResult *pTrace, int bitsDamageType )
 		WRITE_BYTE( TE_EXPLFLAG_NONE );
 	MESSAGE_END();
 
+	//RENDERERS START
+	if (iContents != CONTENTS_WATER)
+		UTIL_Particle("explosion_cluster.txt", pev->origin, g_vecZero, 1);
+	//RENDERERS END
+
 	CSoundEnt::InsertSound ( bits_SOUND_COMBAT, pev->origin, NORMAL_EXPLOSION_VOLUME, 3.0 );
 	entvars_t *pevOwner;
 	if ( pev->owner )
@@ -193,6 +198,10 @@ void CGrenade::ExplodeTouch( CBaseEntity *pOther )
 
 	vecSpot = pev->origin - pev->velocity.Normalize() * 32;
 	UTIL_TraceLine( vecSpot, vecSpot + pev->velocity.Normalize() * 64, ignore_monsters, ENT(pev), &tr );
+
+	pev->effects &= ~FL_DISPLACER;
+	pev->effects &= ~FL_DISPLACER*2;
+	pev->fov = 9999;
 
 	Explode( &tr, DMG_BLAST );
 }

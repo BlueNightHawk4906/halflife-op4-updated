@@ -249,7 +249,7 @@ public:
 
 		virtual BOOL FValidateHintType( short sHint );
 		int FindHintNode ();
-		virtual BOOL FCanActiveIdle ();
+		virtual BOOL FCanActiveIdle() { return FALSE; }
 		void SetTurnActivity ();
 		float FLSoundVolume ( CSound *pSound );
 

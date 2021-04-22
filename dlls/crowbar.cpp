@@ -140,7 +140,7 @@ void CCrowbar::PrimaryAttack()
 
 void CCrowbar::Smack( )
 {
-	DecalGunshot( &m_trHit, BULLET_PLAYER_CROWBAR );
+//	DecalGunshot( &m_trHit, BULLET_PLAYER_CROWBAR );
 }
 
 
@@ -294,9 +294,11 @@ int CCrowbar::Swing( int fFirst )
 
 		m_pPlayer->m_iWeaponVolume = flVol * CROWBAR_WALLHIT_VOLUME;
 #endif
-		SetThink( &CCrowbar::Smack );
-		pev->nextthink = gpGlobals->time + 0.2;
-
+#ifndef CLIENT_DLL
+		//RENDERERS START
+		DecalGunshot(&m_trHit, BULLET_PLAYER_CROWBAR, vecSrc, vecEnd);
+		//RENDERERS END
+#endif
 		
 	}
 	return fDidHit;

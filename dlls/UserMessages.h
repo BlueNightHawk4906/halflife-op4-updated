@@ -71,4 +71,16 @@ extern int gmsgTeamFull;
 extern int gmsgOldWeapon;
 extern int gmsgCustomIcon;
 
+//RENDERERS START
+extern int gmsgSetFog;
+extern int gmsgLightStyle;
+extern int gmsgCreateDecal;
+extern int gmsgStudioDecal;
+extern int gmsgSkyMark_Sky;
+extern int gmsgSkyMark_World;
+extern int gmsgCreateDLight;
+extern int gmsgFreeEnt;
+extern int gmsgCreateSystem;
+//RENDERERS END
+
 void LinkUserMessages();

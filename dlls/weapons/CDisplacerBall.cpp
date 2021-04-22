@@ -108,6 +108,8 @@ void CDisplacerBall::Spawn()
 	SetTouch( &CDisplacerBall::BallTouch );
 	SetThink( &CDisplacerBall::FlyThink );
 
+	pev->effects |= FL_DISPLACER;
+
 	pev->nextthink = gpGlobals->time + 0.2;
 
 	InitBeams();
@@ -246,6 +248,8 @@ void CDisplacerBall::BallTouch( CBaseEntity* pOther )
 
 	SetThink( &CDisplacerBall::KillThink );
 
+	pev->effects &= ~FL_DISPLACER;
+
 	pev->nextthink = gpGlobals->time + ( g_pGameRules->IsMultiplayer() ? 0.2 : 0.5 );
 }
 
@@ -309,6 +313,8 @@ void CDisplacerBall::ExplodeThink()
 	EMIT_SOUND( edict(), CHAN_WEAPON, "weapons/displacer_teleport.wav", RANDOM_FLOAT( 0.8, 0.9 ), ATTN_NORM );
 
 	UTIL_Remove( this );
+
+
 }
 
 void CDisplacerBall::KillThink()

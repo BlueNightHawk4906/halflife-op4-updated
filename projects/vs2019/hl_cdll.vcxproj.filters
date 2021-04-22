@@ -66,9 +66,15 @@
     </Filter>
     <Filter Include="Header Files\_hl\dlls\weapons">
       <UniqueIdentifier>{c98d7745-f010-438b-9e1f-b4f217174e1f}</UniqueIdentifier>
-	</Filter>
+    </Filter>
     <Filter Include="Header Files\engine">
       <UniqueIdentifier>{ebcb0f66-49b6-4e55-9a97-f6720cade9ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\trinity">
+      <UniqueIdentifier>{3676715c-2692-4aa2-ae2e-2db13542c082}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\trinity">
+      <UniqueIdentifier>{24a52164-1a13-480d-b357-cf3f9dd57807}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -366,6 +372,30 @@
     <ClCompile Include="..\..\dlls\weapons_shared.cpp">
       <Filter>Source Files\_hl\dlls</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\cl_dll\rendererdefs.cpp">
+      <Filter>Source Files\trinity</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\textureloader.cpp">
+      <Filter>Source Files\trinity</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\mirrormanager.cpp">
+      <Filter>Source Files\trinity</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\bsprenderer.cpp">
+      <Filter>Source Files\trinity</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\particle_engine.cpp">
+      <Filter>Source Files\trinity</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\watershader.cpp">
+      <Filter>Source Files\trinity</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\propmanager.cpp">
+      <Filter>Source Files\trinity</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\frustum.cpp">
+      <Filter>Source Files\trinity</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\cl_dll\kbutton.h">
@@ -511,7 +541,7 @@
     </ClInclude>
     <ClInclude Include="..\..\dlls\weapons\CPenguin.h">
       <Filter>Header Files\_hl\dlls\weapons</Filter>
-	</ClInclude>
+    </ClInclude>
     <ClInclude Include="..\..\dlls\cdll_dll.h">
       <Filter>Header Files\cl_dll</Filter>
     </ClInclude>
@@ -664,6 +694,30 @@
     </ClInclude>
     <ClInclude Include="..\..\engine\progs.h">
       <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\bsprenderer.h">
+      <Filter>Header Files\trinity</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\rendererdefs.h">
+      <Filter>Header Files\trinity</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\textureloader.h">
+      <Filter>Header Files\trinity</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\watershader.h">
+      <Filter>Header Files\trinity</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\mirrormanager.h">
+      <Filter>Header Files\trinity</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\particle_engine.h">
+      <Filter>Header Files\trinity</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\propmanager.h">
+      <Filter>Header Files\trinity</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\frustum.h">
+      <Filter>Header Files\trinity</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
