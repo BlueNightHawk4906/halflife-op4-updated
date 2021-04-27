@@ -413,6 +413,7 @@ void CEgon::CreateEffect()
 	m_pBeam->SetEndAttachment( 1 );
 	m_pBeam->pev->spawnflags |= SF_BEAM_TEMPORARY;	// Flag these to be destroyed on save/restore or level transition
 	m_pBeam->pev->flags |= FL_SKIPLOCALHOST;
+	m_pBeam->pev->effects |= EF_NODRAW;
 	m_pBeam->pev->owner = m_pPlayer->edict();
 
 	m_pNoise = CBeam::BeamCreate( EGON_BEAM_SPRITE, 55 );
@@ -423,6 +424,7 @@ void CEgon::CreateEffect()
 	m_pNoise->pev->spawnflags |= SF_BEAM_TEMPORARY;
 	m_pNoise->pev->flags |= FL_SKIPLOCALHOST;
 	m_pNoise->pev->owner = m_pPlayer->edict();
+	m_pNoise->pev->effects |= EF_NODRAW;
 
 	m_pSprite = CSprite::SpriteCreate( EGON_FLARE_SPRITE, pev->origin, FALSE );
 	m_pSprite->pev->scale = 1.0;
@@ -430,7 +432,7 @@ void CEgon::CreateEffect()
 	m_pSprite->pev->spawnflags |= SF_SPRITE_TEMPORARY;
 	m_pSprite->pev->flags |= FL_SKIPLOCALHOST;
 	m_pSprite->pev->owner = m_pPlayer->edict();
-
+	m_pSprite->pev->effects |= EF_NODRAW;
 	if ( m_fireMode == FIRE_WIDE )
 	{
 		m_pBeam->SetScrollRate( 50 );

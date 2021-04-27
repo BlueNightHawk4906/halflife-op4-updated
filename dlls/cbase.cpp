@@ -745,3 +745,9 @@ CBaseEntity * CBaseEntity::Create( const char *szName, const Vector &vecOrigin, 
 }
 
 
+float PM_CVAR_GET_FLOAT(const char* name)
+{
+	return CVAR_GET_FLOAT(name);
+}
+
+

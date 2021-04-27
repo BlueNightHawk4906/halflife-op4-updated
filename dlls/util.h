@@ -232,7 +232,7 @@ extern void			UTIL_MakeInvVectors		( const Vector &vec, globalvars_t *pgv );
 extern void			UTIL_SetOrigin			( entvars_t* pev, const Vector &vecOrigin );
 extern void			UTIL_EmitAmbientSound	( edict_t *entity, const Vector &vecOrigin, const char *samp, float vol, float attenuation, int fFlags, int pitch );
 extern void			UTIL_ParticleEffect		( const Vector &vecOrigin, const Vector &vecDirection, ULONG ulColor, ULONG ulCount );
-extern void			UTIL_ScreenShake		( const Vector &center, float amplitude, float frequency, float duration, float radius );
+extern void			UTIL_ScreenShake		( const Vector &center, float amplitude, float frequency, float duration, float radius, int concuss = 0 );
 extern void			UTIL_ScreenShakeAll		( const Vector &center, float amplitude, float frequency, float duration );
 extern void			UTIL_ShowMessage		( const char *pString, CBaseEntity *pPlayer );
 extern void			UTIL_ShowMessageAll		( const char *pString );
@@ -709,3 +709,6 @@ extern void			UTIL_Particle(char* szName, Vector vecOrigin, Vector vDirection, i
 extern void			UTIL_CustomDecal(TraceResult* pTrace, const char* name, int persistent = 0);
 extern void			UTIL_StudioDecal(Vector normal, Vector position, const char* name, int entindex);
 //RENDERERS END
+
+extern void UTIL_CalcViewModelLag(Vector& origin, Vector& angles, CBasePlayer* pPlayer);
+extern float UTIL_CalcNewBob(float& vertbob, float& horbob, CBasePlayer* pPlayer);

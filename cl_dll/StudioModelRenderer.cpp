@@ -6413,3 +6413,96 @@ void CStudioModelRenderer::StudioDrawPointsSolidEXT(void)
 		}
 	}
 }
+
+void CStudioModelRenderer::DrawLegs()
+{
+	Vector forward, origin;
+	float yaw;
+
+	cl_entity_t* player = gEngfuncs.GetLocalPlayer();
+
+	AngleVectors(player->angles, forward, NULL, NULL);
+	origin = player->origin - (forward * 20);
+
+	m_pPlayerInfo = IEngineStudio.PlayerInfo(player->index - 1);
+	StudioProcessGait(IEngineStudio.GetPlayerState(player->index - 1));
+	yaw = m_pPlayerInfo->gaityaw;
+	m_pPlayerInfo = NULL;
+
+	legs.model = IEngineStudio.Mod_ForName("models/legs.mdl", 1);
+	legs.curstate.framerate = player->curstate.framerate;
+	legs.origin = legs.curstate.origin = origin;
+	legs.angles[YAW] = legs.curstate.angles[YAW] = yaw;
+
+	if (player->curstate.gaitsequence != 0)
+		legs.curstate.sequence = player->curstate.gaitsequence;
+	else
+	{
+		legs.curstate.frame = player->curstate.frame;
+		legs.curstate.animtime = player->curstate.animtime;
+		legs.curstate.sequence = player->curstate.sequence;
+	}
+
+
+	legs.index = 999;
+	gBSPRenderer.AddEntity(&legs);
+
+	//StudioDrawCustomEntity(&legs);
+}
+
+int CStudioModelRenderer::StudioDrawCustomEntity(cl_entity_t* ent)
+{
+	alight_t lighting;
+	Vector dir;
+
+	m_pCurrentEntity = ent;
+
+
+	IEngineStudio.GetTimes(&m_nFrameCount, &m_clTime, &m_clOldTime);
+	IEngineStudio.GetViewInfo(m_vRenderOrigin, m_vUp, m_vRight, m_vNormal);
+//	IEngineStudio.GetAliasScale(&m_fSoftwareXScale, &m_fSoftwareYScale);
+
+	m_pRenderModel = m_pCurrentEntity->model;
+	m_pStudioHeader = (studiohdr_t*)IEngineStudio.Mod_Extradata(m_pRenderModel);
+
+	IEngineStudio.StudioSetHeader(m_pStudioHeader);
+	IEngineStudio.SetRenderModel(m_pRenderModel);
+	StudioSetupTextureHeader();
+
+	if (!m_pTextureHeader)
+		return 1;
+
+	StudioSetUpTransform(0);
+
+	(*m_pModelsDrawn)++;
+	(*m_pStudioModelCount)++; // render data cache cookie
+
+	if (m_pStudioHeader->numbodyparts == 0)
+		return 1;
+
+	StudioSetupBones();
+	StudioSaveBones();
+
+	lighting.plightvec = dir;
+	IEngineStudio.StudioDynamicLight(m_pCurrentEntity, &lighting);
+	IEngineStudio.StudioEntityLight(&lighting);
+
+	// model and frame independant
+	IEngineStudio.StudioSetupLighting(&lighting);
+
+	// get remap colors
+	m_nTopColor = m_pCurrentEntity->curstate.colormap & 0xFF;
+	m_nBottomColor = (m_pCurrentEntity->curstate.colormap & 0xFF00) >> 8;
+
+	IEngineStudio.StudioSetRemapColors(m_nTopColor, m_nBottomColor);
+
+	StudioSetupLighting();
+	StudioEntityLight();
+
+	if (!(m_pCurrentEntity->curstate.effects & FL_NOMODEL) && m_pCvarDrawModels->value >= 1)
+	{
+		StudioRenderModel();
+	}
+
+	return 1;
+}

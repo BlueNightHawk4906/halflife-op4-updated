@@ -141,6 +141,9 @@ static char grgchTextureType[CTEXTURESMAX];
 
 int g_onladder = 0;
 
+
+float PM_CVAR_GET_FLOAT(const char *name);
+
 void PM_SwapTextures( int i, int j )
 {
 	char chTemp;
@@ -2430,6 +2433,11 @@ void PM_NoClip()
 //-----------------------------------------------------------------------------
 void PM_PreventMegaBunnyJumping()
 {
+	if (PM_CVAR_GET_FLOAT("sv_enablebhop"))
+	{
+		return;
+	}
+
 	// Current player speed
 	float spd;
 	// If we have to crop, apply this cropping fraction to velocity
@@ -2538,8 +2546,14 @@ void PM_Jump ()
 		return;		// in air, so no effect
 	}
 
-	if ( pmove->oldbuttons & IN_JUMP )
-		return;		// don't pogo stick
+	if (!PM_CVAR_GET_FLOAT("sv_autobhop"))
+	{
+		if (pmove->oldbuttons & IN_JUMP)
+			return;		// don't pogo stick
+	}
+
+
+
 
 	// In the air now.
     pmove->onground = -1;
@@ -2807,14 +2821,41 @@ PM_DropPunchAngle
 
 =============
 */
+
+#define clamp( val, min, max ) ( ((val) > (max)) ? (max) : ( ((val) < (min)) ? (min) : (val) ) ) 
+#define PUNCH_DAMPING		9.0f		// bigger number makes the response more damped, smaller is less damped
+// currently the system will overshoot, with larger damping values it won't
+#define PUNCH_SPRING_CONSTANT	35.0f	// bigger number increases the speed at which the view corrects
+
 void PM_DropPunchAngle (Vector& punchangle)
 {
-	float	len;
-	
-	len = VectorNormalize ( punchangle );
-	len -= (10.0 + len * 0.5) * pmove->frametime;
-	len = V_max( len, 0.0 );
-	VectorScale ( punchangle, len, punchangle);
+	static Vector punch = Vector(0.1, 0.1, 0.1);
+
+	float damping;
+	float springForceMagnitude;
+
+	float frametime = pmove->frametime * 1.75f;
+
+	if (Length(punchangle) > 0.001 || Length(punch) > 0.001)
+	{
+		VectorMA(punchangle, frametime, punch, punchangle);
+		damping = 1 - (PUNCH_DAMPING * frametime);
+
+		if (damping < 0)
+		{
+			damping = 0;
+		}
+
+		VectorScale(punch, damping, punch);
+
+		// torsional spring
+		// UNDONE: Per-axis spring constant?
+
+		springForceMagnitude = PUNCH_SPRING_CONSTANT * frametime;
+		springForceMagnitude = clamp(springForceMagnitude, 0, 2);
+
+		VectorMA(punch, -springForceMagnitude, punchangle, punch);
+	}
 }
 
 /*

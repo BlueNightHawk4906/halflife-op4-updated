@@ -26,6 +26,22 @@
 #include "entity_types.h"
 #include "r_efx.h"
 
+//RENDERERS START
+#include "rendererdefs.h"
+#include "bsprenderer.h"
+#include "particle_engine.h"
+#include "propmanager.h"
+#include "watershader.h"
+#include "mirrormanager.h"
+
+
+#include "studio.h"
+#include "StudioModelRenderer.h"
+#include "GameStudioModelRenderer.h"
+//RENDERERS END
+
+extern cvar_s* cl_lw;
+
 extern BEAM *pBeam;
 extern BEAM *pBeam2;
 extern TEMPENTITY* pFlare;	// Vit_amiN: egon's energy flare
@@ -37,13 +53,23 @@ void UpdateBeams ()
 	Vector view_ofs;
 	pmtrace_t tr;
 	cl_entity_t *pthisplayer = gEngfuncs.GetLocalPlayer();
+	cl_entity_s* view = gEngfuncs.GetViewModel();
 	int idx = pthisplayer->index;
 		
 	// Get our exact viewangles from engine
 	gEngfuncs.GetViewAngles( (float *)angles );
 
 	// Determine our last predicted origin
-	HUD_GetLastOrg( (float *)&origin );
+	if (cl_lw->value)
+		HUD_GetLastOrg((float*)&origin);
+	else
+	{
+		origin = pthisplayer->origin;
+
+		gEngfuncs.pEventAPI->EV_LocalPlayerViewheight(view_ofs);
+
+		origin = origin + view_ofs;
+	}
 
 	AngleVectors( angles, forward, right, up );
 
@@ -97,6 +123,27 @@ void UpdateBeams ()
 			}
 		}
 	}
+
+
+	cl_dlight_t* dlight = gBSPRenderer.CL_AllocDLight(9999);
+
+	dlight->color.x = 0.0;
+	dlight->color.y = 0.0;
+	dlight->color.z = 0.5;
+	dlight->radius = 250;
+	dlight->origin = view->attachment[0] - forward * 10;
+	dlight->die = gEngfuncs.GetClientTime() + 1;
+	dlight->decay = 500;
+
+	dlight = gBSPRenderer.CL_AllocDLight(9998);
+
+	dlight->color.x = 0.0;
+	dlight->color.y = 0.5;
+	dlight->color.z = 0.5;
+	dlight->radius = 100;
+	dlight->origin = tr.endpos - forward*10;
+	dlight->die = gEngfuncs.GetClientTime() + 1;
+	dlight->decay = 500;
 }
 
 /*

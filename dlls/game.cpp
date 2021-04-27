@@ -43,6 +43,10 @@ cvar_t  allow_spectators = { "allow_spectators", "0.0", FCVAR_SERVER };		// 0 pr
 
 cvar_t  mp_chattime = {"mp_chattime","10", FCVAR_SERVER };
 
+cvar_t  sv_enablebhop = { "sv_enablebhop","0", FCVAR_SERVER};
+cvar_t  sv_autobhop = { "sv_autobhop","0", FCVAR_SERVER };
+
+
 // Engine Cvars
 cvar_t 	*g_psv_gravity = NULL;
 cvar_t	*g_psv_aim = NULL;
@@ -1163,6 +1167,8 @@ void GameDLLInit()
 	CVAR_REGISTER(&multipower);
 	CVAR_REGISTER(&dmjumpsound);
 
+	CVAR_REGISTER(&sv_enablebhop);
+	CVAR_REGISTER(&sv_autobhop);
 	// END REGISTER CVARS FOR OPPOSING FORCE
 
 	SERVER_COMMAND( "exec skill.cfg\n" );

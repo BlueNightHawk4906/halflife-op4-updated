@@ -323,6 +323,8 @@ public:
 	CBasePlayerItem *m_pNext;
 	int		m_iId;												// WEAPON_???
 
+	int		m_iNextClip;
+
 	virtual int iItemSlot() { return 0; }			// return 0 to MAX_ITEMS_SLOTS, used in hud
 
 	int			iItemPosition() { return ItemInfoArray[ m_iId ].iPosition; }

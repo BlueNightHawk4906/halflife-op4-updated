@@ -87,6 +87,8 @@ int gmsgFreeEnt = 0;
 int gmsgCreateSystem = 0;
 //RENDERERS END
 
+int gmsgConcussion = 0;
+
 void LinkUserMessages()
 {
 	// Already taken care of?
@@ -161,4 +163,6 @@ void LinkUserMessages()
 	gmsgSkyMark_World = REG_USER_MSG("SkyMark_W", -1);
 	gmsgCreateSystem = REG_USER_MSG("Particle", -1);
 	//RENDERERS END
+
+	gmsgConcussion = REG_USER_MSG("Concuss", 1);
 }

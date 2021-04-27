@@ -689,11 +689,12 @@ private:
 	int							m_iSpriteCount;
 	int							m_iSpriteCountAllRes;
 	float						m_flMouseSensitivity;
-	int							m_iConcussionEffect; 
 
 	bool mNightVisionState;
 
 public:
+
+	float							m_iConcussionEffect;
 
 	HSPRITE						m_hsprCursor;
 	float m_flTime;	   // the current client time

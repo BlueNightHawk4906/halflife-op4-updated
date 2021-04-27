@@ -26,7 +26,7 @@
 #include "nodes.h"
 #include "soundent.h"
 #include "decals.h"
-
+#include "UserMessages.h"
 
 //===================grenade
 
@@ -82,6 +82,20 @@ void CGrenade::Explode( TraceResult *pTrace, int bitsDamageType )
 		WRITE_BYTE( 15  ); // framerate
 		WRITE_BYTE( TE_EXPLFLAG_NONE );
 	MESSAGE_END();
+
+	MESSAGE_BEGIN(MSG_PAS, gmsgCreateDLight, pev->origin);
+		WRITE_COORD_VECTOR(pev->origin);
+		WRITE_BYTE(pev->dmg);
+		WRITE_BYTE(128);
+		WRITE_BYTE(128);
+		WRITE_BYTE(0);
+		WRITE_BYTE(1);
+		WRITE_BYTE(1000);
+	MESSAGE_END();
+
+	UTIL_ScreenShake(pev->origin, 15, 15, 1, pev->dmg * 3.75, 1);
+	
+
 
 	//RENDERERS START
 	if (iContents != CONTENTS_WATER)

@@ -473,3 +473,8 @@ public:
 };
 
 EXPOSE_SINGLE_INTERFACE(CClientExports, IGameClientExports, GAMECLIENTEXPORTS_INTERFACE_VERSION);
+
+float PM_CVAR_GET_FLOAT(const char* name)
+{
+	return CVAR_GET_FLOAT(name);
+}

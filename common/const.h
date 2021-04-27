@@ -117,7 +117,7 @@
 #define FL_NOSHADOW				8192
 #define FL_NOMODEL				16384
 #define FL_DISPLACER			FL_NOMODEL*2
-
+#define FL_LASERSPOT			FL_DISPLACER*2
 // entity flags
 #define EFLAG_SLERP				1	// do studio interpolation of this entity
 #define EFLAG_CONVEYOR			2	// do studio interpolation of this entity

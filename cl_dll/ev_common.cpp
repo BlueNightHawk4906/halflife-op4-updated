@@ -25,6 +25,8 @@
 #include "event_api.h"
 #include "pm_shared.h"
 
+extern Vector g_vOrigin;
+
 #define IS_FIRSTPERSON_SPEC ( g_iUser1 == OBS_IN_EYE || (g_iUser1 && (gHUD.m_Spectator.m_pip->value == INSET_IN_EYE)) )
 /*
 =================
@@ -176,7 +178,7 @@ void EV_GetDefaultShellInfo( event_args_t *args, float *origin, float *velocity,
 	for ( i = 0; i < 3; i++ )
 	{
 		ShellVelocity[i] = velocity[i] + right[i] * fR + up[i] * fU + forward[i] * 25;
-		ShellOrigin[i]   = origin[i] + view_ofs[i] + up[i] * upScale + forward[i] * forwardScale + right[i] * rightScale;
+		ShellOrigin[i]   = ((EV_IsLocal(idx)) ? (g_vOrigin[i]) : ( origin[i] + view_ofs[i])) + up[i] * upScale + forward[i] * forwardScale + right[i] * rightScale;
 	}
 }
 

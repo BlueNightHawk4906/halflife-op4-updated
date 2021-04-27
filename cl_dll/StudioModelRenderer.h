@@ -318,6 +318,10 @@ public:
 
 	studiodecal_t	m_pStudioDecals[MAX_CUSTOMDECALS];
 	int				m_iNumStudioDecals;
+
+	int StudioDrawCustomEntity(cl_entity_t* ent);
+	void DrawLegs();
+	cl_entity_t legs;
 };
 
 #endif // STUDIOMODELRENDERER_H

@@ -694,7 +694,7 @@ static short FixedSigned16( float value, float scale )
 // UNDONE: Allow caller to shake clients not ONGROUND?
 // UNDONE: Fix falloff model (disabled)?
 // UNDONE: Affect user controls?
-void UTIL_ScreenShake( const Vector &center, float amplitude, float frequency, float duration, float radius )
+void UTIL_ScreenShake( const Vector &center, float amplitude, float frequency, float duration, float radius, int concuss )
 {
 	int			i;
 	float		localAmplitude;
@@ -707,7 +707,7 @@ void UTIL_ScreenShake( const Vector &center, float amplitude, float frequency, f
 	{
 		CBaseEntity *pPlayer = UTIL_PlayerByIndex( i );
 
-		if ( !pPlayer || !(pPlayer->pev->flags & FL_ONGROUND) )	// Don't shake if not onground
+		if ( !pPlayer /*|| !(pPlayer->pev->flags & FL_ONGROUND)*/ )	// Don't shake if not onground
 			continue;
 
 		localAmplitude = 0;
@@ -734,6 +734,19 @@ void UTIL_ScreenShake( const Vector &center, float amplitude, float frequency, f
 				WRITE_SHORT( shake.frequency );				// shake noise frequency
 
 			MESSAGE_END();
+
+			if (concuss)
+			{
+				float flFadeTime = amplitude / 15;
+				extern int gmsgConcussion;
+				MESSAGE_BEGIN( MSG_ONE, gmsgConcussion, NULL, pPlayer->edict() );
+					if (flFadeTime < 3) { WRITE_BYTE( 20 ); }
+					else if (flFadeTime >= 3 && flFadeTime < 4) { WRITE_BYTE( 34 ); }
+					else if (flFadeTime >= 4 && flFadeTime < 5.5) { WRITE_BYTE( 50 ); }
+					else if (flFadeTime >= 5.5 && flFadeTime < 12) { WRITE_BYTE( 72 ); }
+					else if (flFadeTime >= 12) { WRITE_BYTE( 90 ); }
+				MESSAGE_END();
+			}
 		}
 	}
 }
@@ -2675,3 +2688,245 @@ void UTIL_Particle(char* szName, Vector vecOrigin, Vector vDirection, int iType)
 	MESSAGE_END();
 }
 //RENDERERS END
+
+// BNH : Experimental stuff
+
+typedef enum direction_t {
+	FORWARD,
+	RIGHT,
+	UP,
+} direction;
+
+// BNH : Modified to also find angle usin forward, right, up
+float UTIL_CalcAngle(Vector angles, Vector velocity, float rollangle, float rollspeed, direction dir)
+{
+	float   sign;
+	float   side;
+	float   value;
+	Vector  forward, right, up;
+
+	UTIL_MakeVectorsPrivate(angles, forward, right, up);
+
+	switch (dir)
+	{
+	case FORWARD:
+		side = DotProduct(velocity, forward);
+		break;
+	case RIGHT:
+		side = DotProduct(velocity, right);
+		break;
+	case UP:
+		side = DotProduct(velocity, up);
+		break;
+	default:
+		side = DotProduct(velocity, forward);
+		break;
+	}
+
+	sign = side < 0 ? -1 : 1;
+	side = fabs(side);
+
+	value = rollangle;
+	if (side < rollspeed)
+	{
+		side = side * value / rollspeed;
+	}
+	else
+	{
+		side = value;
+	}
+	return side * sign;
+}
+
+float m_flWeaponLag = 1.5f;
+
+void UTIL_CalcViewModelLag(Vector& origin, Vector &angles, CBasePlayer *pPlayer)
+{
+	if (gpGlobals->deathmatch)
+		return;
+
+	static Vector m_vecLastFacing;
+	static Vector m_vecLastFacingUp; // used for UP
+
+	Vector angle = pPlayer->pev->v_angle;
+
+	Vector vOriginalOrigin = origin;
+	Vector vOriginalAngles = angles;
+
+	// Calculate our drift
+	Vector	forward, right, up;
+	UTIL_MakeVectorsPrivate(angles, forward, right, up);
+
+	if (gpGlobals->frametime != 0.0f)	// not in paused
+	{
+		Vector vDifference;
+		Vector vDifferenceUp; // used for UP
+
+		vDifference = forward - m_vecLastFacing;
+		vDifferenceUp = forward - m_vecLastFacingUp;
+
+		float flSpeed = 15.5f;
+
+		// If we start to lag too far behind, we'll increase the "catch up" speed.
+		// Solves the problem with fast cl_yawspeed, m_yaw or joysticks rotating quickly.
+		// The old code would slam lastfacing with origin causing the viewmodel to pop to a new position
+		float flDiff = vDifference.Length();
+		if ((flDiff > m_flWeaponLag) && (m_flWeaponLag > 0.0f))
+		{
+			float flScale = flDiff / m_flWeaponLag;
+			flSpeed *= flScale;
+		}
+
+		// FIXME:  Needs to be predictable?
+		m_vecLastFacing = m_vecLastFacing + vDifference * (flSpeed * gpGlobals->frametime);
+		// Make sure it doesn't grow out of control!!!
+		m_vecLastFacing = m_vecLastFacing.Normalize();
+
+		flSpeed = 15.5f + 5.0f;
+
+		flDiff = vDifferenceUp.Length();
+		if ((flDiff > m_flWeaponLag) && (m_flWeaponLag > 0.0f))
+		{
+			float flScale = flDiff / m_flWeaponLag;
+			flSpeed *= flScale;
+		}
+
+		// FIXME:  Needs to be predictable?
+		m_vecLastFacingUp = m_vecLastFacingUp + vDifferenceUp * (flSpeed * gpGlobals->frametime);
+		// Make sure it doesn't grow out of control!!!
+		m_vecLastFacingUp = m_vecLastFacingUp.Normalize();
+
+		{
+			// BNH : Add the difference to the angles too
+			Vector vecAngles;
+			Vector vecAdd;
+
+			float yaw = UTIL_CalcAngle(vOriginalAngles, vDifference, 0.75, 150, RIGHT) * 500;
+
+			vecAngles[0] = vDifferenceUp[2] * (5);
+			vecAngles[1] = yaw;
+			vecAngles[2] = 0;
+
+			vecAngles = vecAngles;
+
+			vecAdd = right * vecAngles[1] - up * vecAngles[0];
+
+			origin = (origin + (vecAdd * -1.0f));
+			angles = angles - vecAngles;
+
+		}
+		//gEngfuncs.Con_DPrintf("YAW : %f \n", vecAngles[1]);
+	}
+
+	UTIL_MakeVectorsPrivate(angles, forward, right, up);
+
+	float pitch = angles.x;
+
+	// BNH : Facing up exposes too much of the viewmodel, so i inverted the pitch so the viewmodel doesn't get exposed too much 
+	if (pitch < 0)
+		pitch = -pitch;
+
+	pitch *= 0.45;
+
+	if (pitch > 180.0f)
+	{
+		pitch -= 360.0f;
+	}
+	else if (pitch < -180.0f)
+	{
+		pitch += 360.0f;
+	}
+
+
+	if (m_flWeaponLag <= 0.0f)
+	{
+		origin = vOriginalOrigin;
+		angles = vOriginalAngles;
+	}
+	else
+	{
+		// scale this down
+		// FIXME: These are the old settings that caused too many exposed polys on some models
+		origin = origin + forward * (-pitch * 0.035f);
+		origin = origin + right * (-pitch * 0.03f);
+		origin = origin + up * (-pitch * 0.02f);
+	}
+}
+
+float RemapVal(float val, float A, float B, float C, float D)
+{
+	return C + (D - C) * (val - A) / (B - A);
+}
+
+#define clamp( val, min, max ) ( ((val) > (max)) ? (max) : ( ((val) < (min)) ? (min) : (val) ) ) // thx BUzer
+#define	HL2_BOB_CYCLE_MIN	1.0f
+#define	HL2_BOB_CYCLE_MAX	0.45f
+#define	HL2_BOB			0.002f
+#define	HL2_BOB_UP		0.5f
+
+float UTIL_CalcNewBob(float &vertbob, float &horbob, CBasePlayer *pPlayer)
+{
+	if (gpGlobals->deathmatch)
+		return 0.0f;
+
+	static	float bobtime;
+	static	float lastbobtime;
+	float	cycle;
+
+	Vector	vel = pPlayer->pev->velocity;
+
+	vel[2] = 0;
+
+	if (!(pPlayer->pev->flags & FL_ONGROUND) || gpGlobals->time == lastbobtime)
+	{
+		return 0.0f;
+	}
+
+	float speed = sqrt(vel[0] * vel[0] + vel[1] * vel[1]);
+
+	speed = clamp(speed, -320, 320);
+
+	float bob_offset = RemapVal(speed, 0, 320, 0.0f, 1.0f);
+
+	bobtime += (gpGlobals->time - lastbobtime) * bob_offset;
+	lastbobtime = gpGlobals->time;
+
+	//Calculate the vertical bob
+	cycle = bobtime - (int)(bobtime / HL2_BOB_CYCLE_MAX) * HL2_BOB_CYCLE_MAX;
+	cycle /= HL2_BOB_CYCLE_MAX;
+
+	if (cycle < HL2_BOB_UP)
+	{
+		cycle = M_PI * cycle / HL2_BOB_UP;
+	}
+	else
+	{
+		cycle = M_PI + M_PI * (cycle - HL2_BOB_UP) / (1.0 - HL2_BOB_UP);
+	}
+
+	vertbob = speed * 0.004f;
+	vertbob = vertbob * 0.3 + vertbob * 0.7 * sin(cycle);
+
+	vertbob = clamp(vertbob, -7.0f, 4.0f);
+
+	//Calculate the lateral bob
+	cycle = bobtime - (int)(bobtime / HL2_BOB_CYCLE_MAX * 2) * HL2_BOB_CYCLE_MAX * 2;
+	cycle /= HL2_BOB_CYCLE_MAX * 2;
+
+	if (cycle < HL2_BOB_UP)
+	{
+		cycle = M_PI * cycle / HL2_BOB_UP;
+	}
+	else
+	{
+		cycle = M_PI + M_PI * (cycle - HL2_BOB_UP) / (1.0 - HL2_BOB_UP);
+	}
+
+	horbob = speed * 0.004f;
+	horbob = horbob * 0.3 + horbob * 0.7 * sin(cycle);
+
+	horbob = clamp(horbob, -7.0f, 4.0f);
+
+	//NOTENOTE: We don't use this return value in our case (need to restructure the calculation function setup!)
+	return 0.0f;
+}

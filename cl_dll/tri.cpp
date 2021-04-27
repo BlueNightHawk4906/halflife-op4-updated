@@ -47,6 +47,9 @@ void DLLEXPORT HUD_DrawNormalTriangles()
 {
 //	RecClDrawNormalTriangles();
 
+//	if (gHUD.m_flTime > 1 && g_StudioRenderer.legs.index == 999)
+	//	g_StudioRenderer.StudioDrawCustomEntity(&g_StudioRenderer.legs);
+
 	//RENDERERS START
 	//2012-02-25
 	R_DrawNormalTriangles();
@@ -83,3 +86,31 @@ void DLLEXPORT HUD_DrawTransparentTriangles()
 		 g_pParticleMan->Update();
 }
 
+/*
+=================
+HUD_DrawOrthoTriangles
+Orthogonal Triangles -- (relative to resolution,
+smackdab on the screen) add them here
+=================
+*/
+void HUD_DrawOrthoTriangles(void)
+{
+	static int reset = 0;
+	static float flConcussionEffect = 0.0f;
+
+	if (gHUD.m_iConcussionEffect > 0) {
+
+		if (reset == 0)
+		{
+			flConcussionEffect = gHUD.m_iConcussionEffect;
+			reset = 1;
+		}
+
+		gHUD.m_iConcussionEffect -= gHUD.m_flTimeDelta*(flConcussionEffect/5);
+		if (gHUD.m_iConcussionEffect < 0)
+			gHUD.m_iConcussionEffect = 0;
+
+		if (gHUD.m_iConcussionEffect == 0 && reset)
+			reset = 0;
+	}
+}

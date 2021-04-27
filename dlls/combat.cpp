@@ -342,6 +342,9 @@ void CBaseMonster :: GibMonster()
 		{
 			CGib::SpawnHeadGib( pev );
 			CGib::SpawnRandomGibs( pev, 4, 1 );	// throw some human gibs.
+			//RENDERERS START
+				UTIL_Particle("engine_gib_cloud.txt", pev->origin, g_vecZero, 0);
+			//RENDERERS END
 		}
 		gibbed = TRUE;
 	}
@@ -350,6 +353,7 @@ void CBaseMonster :: GibMonster()
 		if ( CVAR_GET_FLOAT("violence_agibs") != 0 )	// Should never get here, but someone might call it directly
 		{
 			CGib::SpawnRandomGibs( pev, 4, 0 );	// Throw alien gibs
+			UTIL_Particle("engine_gib_cloud2.txt", pev->origin, g_vecZero, 0);
 		}
 		gibbed = TRUE;
 	}
@@ -1654,7 +1658,15 @@ Vector CBaseEntity::FireBulletsPlayer ( ULONG cShots, Vector vecSrc, Vector vecD
 
 			case BULLET_PLAYER_BUCKSHOT:	
 				 // make distance based!
-				pEntity->TraceAttack(pevAttacker, gSkillData.plrDmgBuckshot, vecDir, &tr, DMG_BULLET); 
+			{
+				int flags = DMG_BULLET;
+				if (RANDOM_LONG(0, 2) == 2)
+				{
+					flags |= DMG_ALWAYSGIB;
+				}
+
+				pEntity->TraceAttack(pevAttacker, gSkillData.plrDmgBuckshot, vecDir, &tr, flags);
+			}
 				break;
 			
 			case BULLET_PLAYER_357:		

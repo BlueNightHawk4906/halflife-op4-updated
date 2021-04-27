@@ -533,6 +533,8 @@ void CBSPRenderer::GetRenderEnts( void )
 	m_iNumRenderEntities = NULL;
 	m_iNumModelLights = NULL;
 
+	static cl_dlight_t* lastdl = NULL;
+
 	cl_entity_t *pPlayer = gEngfuncs.GetLocalPlayer();
 	cl_entity_t *pView = gEngfuncs.GetViewModel();
 
@@ -678,6 +680,36 @@ void CBSPRenderer::GetRenderEnts( void )
 			dlight->origin = pEntity->curstate.origin;
 			dlight->die = gEngfuncs.GetClientTime() + 1;
 			dlight->decay = 500;
+			continue;
+		}
+
+		if (pEntity->curstate.effects & FL_LASERSPOT && !(pEntity->curstate.effects & EF_NODRAW))
+		{
+			Vector angles;
+			gEngfuncs.GetViewAngles(angles);
+			AngleVectors(angles, angles, 0, 0);
+
+			// mlights are static
+			mlight_t* mlight = &m_pModelLights[m_iNumModelLights];
+
+			mlight->color.x = 1;
+			mlight->color.y = 0;
+			mlight->color.z = 0;
+			mlight->radius = 25;
+
+			mlight->origin = pEntity->origin - angles * 5;
+			mlight->mins.x = mlight->origin.x - mlight->radius;
+			mlight->mins.y = mlight->origin.y - mlight->radius;
+			mlight->mins.z = mlight->origin.z - mlight->radius;
+			mlight->maxs.x = mlight->origin.x + mlight->radius;
+			mlight->maxs.y = mlight->origin.y + mlight->radius;
+			mlight->maxs.z = mlight->origin.z + mlight->radius;
+
+			mlight->spotcos = 0.000f;
+			mlight->flashlight = false;
+
+			m_iNumModelLights++;
+
 			continue;
 		}
 
@@ -6040,6 +6072,14 @@ void CBSPRenderer::CreateShadowMap( void )
 			g_StudioRenderer.m_pCurrentEntity = gBSPRenderer.m_pRenderEntities[i];
 			g_StudioRenderer.StudioDrawModelSolid();
 		}
+		/*else if (m_pRenderEntities[i] == gEngfuncs.GetLocalPlayer())
+		{
+			if (gEngfuncs.GetViewModel()->angles.x < 0)
+			{
+				g_StudioRenderer.m_pCurrentEntity = &g_StudioRenderer.legs;
+				g_StudioRenderer.StudioDrawModelSolid();
+			}
+		}*/
 	}
 
 	gPropManager.RenderPropsSolid();

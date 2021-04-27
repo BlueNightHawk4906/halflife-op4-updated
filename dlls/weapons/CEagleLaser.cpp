@@ -33,5 +33,7 @@ CEagleLaser *CEagleLaser::CreateSpot()
 
 	pSpot->pev->classname = MAKE_STRING( "eagle_laser" );
 
+	pSpot->pev->effects |= FL_LASERSPOT;
+
 	return pSpot;
 }

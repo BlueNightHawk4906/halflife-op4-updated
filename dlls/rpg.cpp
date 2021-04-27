@@ -54,6 +54,8 @@ void CLaserSpot::Spawn()
 	pev->renderfx = kRenderFxNoDissipation;
 	pev->renderamt = 255;
 
+	pev->effects |= FL_LASERSPOT;
+
 	SET_MODEL(ENT(pev), "sprites/laserdot.spr");
 	UTIL_SetOrigin( pev, pev->origin );
 };
@@ -540,8 +542,6 @@ void CRpg::WeaponIdle()
 	}
 }
 
-
-
 void CRpg::UpdateSpot()
 {
 
@@ -552,9 +552,39 @@ void CRpg::UpdateSpot()
 		{
 			m_pSpot = CLaserSpot::CreateSpot();
 		}
+		Vector origin = m_pPlayer->GetGunPosition();
+		Vector angle = m_pPlayer->pev->v_angle;
+		// BNH : Add viewmodel lag and bob to laser spot
+		/*
+		if (!g_pGameRules->IsMultiplayer())
+		{
+			static float verticalbob = 0;
+			static float horizontalbob = 0;
 
-		UTIL_MakeVectors( m_pPlayer->pev->v_angle );
-		Vector vecSrc = m_pPlayer->GetGunPosition( );
+			Vector	forward, right, up;
+
+			UTIL_MakeVectorsPrivate(m_pPlayer->pev->v_angle, forward, right, up);
+
+			UTIL_CalcNewBob(verticalbob, horizontalbob, m_pPlayer);
+
+			// Apply bob, but scaled down to 40%
+			VectorMA(origin, verticalbob * 0.25f, up, origin);
+
+			// Z bob a bit more
+			origin[2] += verticalbob * 0.1f;
+
+			// bob the angles
+			angle.z += verticalbob * (0.3f / 3.5);
+			angle.x -= verticalbob * (0.8f / 3.5);
+			angle.y -= horizontalbob * (0.8f / 3.5);
+
+			VectorMA(origin, horizontalbob * 1.2f, right, origin);
+
+			UTIL_CalcViewModelLag(origin, angle, m_pPlayer);
+		}
+		*/
+		UTIL_MakeVectors( angle );
+		Vector vecSrc = origin;
 		Vector vecAiming = gpGlobals->v_forward;
 
 		TraceResult tr;

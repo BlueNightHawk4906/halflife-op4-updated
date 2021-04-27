@@ -22,6 +22,8 @@
 #include "CEagleLaser.h"
 
 #include "CEagle.h"
+#include "gamerules.h"
+
 
 #ifndef CLIENT_DLL
 TYPEDESCRIPTION	CEagle::m_SaveData[] =
@@ -310,10 +312,38 @@ void CEagle::UpdateLaser()
 
 			EMIT_SOUND_DYN( edict(), CHAN_WEAPON, "weapons/desert_eagle_sight.wav", VOL_NORM, ATTN_NORM, 0, PITCH_NORM );
 		}
+		Vector origin = m_pPlayer->GetGunPosition();
+		Vector angle = m_pPlayer->pev->v_angle;
 
-		UTIL_MakeVectors( m_pPlayer->pev->v_angle );
+		// BNH : Add viewmodel lag and bob to laser spot
+	/*	if (!g_pGameRules->IsMultiplayer())
+		{
+			static float verticalbob = 0;
+			static float horizontalbob = 0;
 
-		Vector vecSrc = m_pPlayer->GetGunPosition();
+			Vector	forward, right, up;
+
+			UTIL_MakeVectorsPrivate(m_pPlayer->pev->v_angle, forward, right, up);
+
+			UTIL_CalcNewBob(verticalbob, horizontalbob, m_pPlayer);
+
+			// Apply bob, but scaled down to 40%
+			VectorMA(origin, verticalbob * 0.25f, up, origin);
+
+			// Z bob a bit more
+			origin[2] += verticalbob * 0.1f;
+
+			// bob the angles
+			angle.z += verticalbob * (0.3f / 3.5);
+			angle.x -= verticalbob * (0.8f / 3.5);
+			angle.y -= horizontalbob * (0.8f / 3.5);
+
+			VectorMA(origin, horizontalbob * 1.2f, right, origin);
+
+			UTIL_CalcViewModelLag(origin, angle, m_pPlayer);
+		}*/
+		UTIL_MakeVectors(angle);
+		Vector vecSrc = origin;
 
 		Vector vecEnd = vecSrc + gpGlobals->v_forward * 8192.0;
 

@@ -369,10 +369,22 @@ void DLLEXPORT HUD_CreateEntities()
 
 	DisplacerLight();
 
+	Vector origin;
+	Vector angles;
+
+	cl_entity_s *player = 
+	gEngfuncs.GetLocalPlayer();
+
+	if (player)
+	{
+		Vector view_ofs;
+		gEngfuncs.pEventAPI->EV_LocalPlayerViewheight(view_ofs);
+
+		origin = player->origin + (view_ofs / 2);
+	}
+
 	if (g_iNightVision)
 	{
-		cl_entity_t* pView = gEngfuncs.GetViewModel();
-
 		if (gHUD.m_flFade < 1)
 		{
 			gHUD.m_flFade += gHUD.m_flTimeDelta * 10;
@@ -380,13 +392,12 @@ void DLLEXPORT HUD_CreateEntities()
 				gHUD.m_flFade = 1;
 		}
 
-		if (pView)
-			dl = SetupFlashlight(pView->origin - Vector(0,0,-5), Vector(-pView->angles[0], pView->angles[1], pView->angles[2]), gEngfuncs.GetClientTime(), gHUD.m_flTimeDelta);
+		if (player)
+			dl = SetupFlashlight(origin, angles, gEngfuncs.GetClientTime(), gHUD.m_flTimeDelta);
 
 	}
 	else
 	{
-		cl_entity_t* pView = gEngfuncs.GetViewModel();
 		if (gHUD.m_flFade > 0)
 		{
 			gHUD.m_flFade -= gHUD.m_flTimeDelta * 10;
@@ -395,8 +406,8 @@ void DLLEXPORT HUD_CreateEntities()
 
 			if (gHUD.m_flFade > 0)
 			{
-				if (pView)
-					dl = SetupFlashlight(pView->origin - Vector(0, 0, -5), Vector(-pView->angles[0], pView->angles[1], pView->angles[2]), gEngfuncs.GetClientTime(), gHUD.m_flTimeDelta);		
+				if (player)
+					dl = SetupFlashlight(origin, angles, gEngfuncs.GetClientTime(), gHUD.m_flTimeDelta);
 			}
 			else
 			{
@@ -409,12 +420,79 @@ void DLLEXPORT HUD_CreateEntities()
 		}
 	}
 	//RENDERERS END
+
+	//if (gHUD.m_flTime > 1)
+		//g_StudioRenderer.DrawLegs();
 }
 
 #if defined( _TFC )
 extern int g_bACSpinning[33];
 #endif 
+void MuzzleFlash(const cl_entity_s* ent, int num)
+{
+	Vector right, up;
+	AngleVectors(ent->angles, NULL, right, up);
 
+
+	particle_system_t *prtcl; 
+	prtcl = gParticleEngine.CreateSystem("engine_muzzle_smoke.txt", ent->attachment[num], Vector(
+		gEngfuncs.pfnRandomLong(1, 100),
+		gEngfuncs.pfnRandomLong(1, 100),
+		gEngfuncs.pfnRandomLong(1, 100))
+		, 0);
+	
+	for (int i = 0; i < gEngfuncs.pfnRandomLong(1,3); i++)
+		gParticleEngine.CreateParticle(prtcl, (float *)&ent->attachment[num], right * gEngfuncs.pfnRandomLong(-65, 65) + up * gEngfuncs.pfnRandomLong(-65, 65));
+
+	if (ent != gEngfuncs.GetViewModel())
+	{
+		cl_dlight_t* dlight = gBSPRenderer.CL_AllocDLight(ent->index);
+
+		dlight->color.x = 0.4;
+		dlight->color.y = 0.4;
+		dlight->color.z = 0.0;
+		dlight->radius = 75;
+		dlight->origin = ent->attachment[num];
+		dlight->die = gEngfuncs.GetClientTime() + 0.15f;
+		dlight->decay = 500;
+		return;
+	}
+
+	if (gBSPRenderer.m_bShaderSupport && gBSPRenderer.m_pCvarWorldShaders->value >= 1)
+	{
+		Vector angles = ent->angles;
+		Vector forward, right, up;
+
+		angles[0] *= -1;
+		AngleVectors(angles, forward, right, up);
+		cl_dlight_t* flashlight = gBSPRenderer.CL_AllocDLight(ent->index);
+		flashlight->origin = ent->attachment[num] - forward * 25 - right * 2.25 + up * 2;
+		flashlight->radius = 700;
+		flashlight->die = gEngfuncs.GetClientTime() + 0.035f;
+		flashlight->cone_size = 100;
+		flashlight->color.x = 0.25818915;
+		flashlight->color.y = 0.25519889;
+		flashlight->color.z = 0.25581891;
+		flashlight->decay = 1000;
+		flashlight->textureindex = gBSPRenderer.m_pFlashlightTextures[1]->iIndex;
+		flashlight->frustum.SetFrustum(angles, flashlight->origin, flashlight->cone_size * 1.2, 700, false);
+		VectorCopy(angles, flashlight->angles);
+
+		mlight_t* pLight = &gBSPRenderer.m_pModelLights[gBSPRenderer.m_iNumModelLights];
+		gBSPRenderer.m_iNumModelLights++;
+
+		pLight->origin = flashlight->origin;
+		pLight->frustum = &flashlight->frustum;
+		pLight->radius = flashlight->radius;
+		pLight->spotcos = cos((flashlight->cone_size * 2) * 0.3 * (M_PI * 2 / 360));
+		pLight->color = flashlight->color;
+		pLight->color.z = 0;
+
+		// Shitpickle
+		FixVectorForSpotlight(angles);
+		AngleVectors(angles, pLight->forward, NULL, NULL);
+	}
+}
 /*
 =========================
 HUD_StudioEvent
@@ -441,18 +519,26 @@ void DLLEXPORT HUD_StudioEvent( const struct mstudioevent_s *event, const struct
 	case 5001:
 		if ( iMuzzleFlash )
 			gEngfuncs.pEfxAPI->R_MuzzleFlash( (float *)&entity->attachment[0], atoi( event->options) );
+
+		MuzzleFlash(entity, 0);
 		break;
 	case 5011:
 		if ( iMuzzleFlash )
 			gEngfuncs.pEfxAPI->R_MuzzleFlash( (float *)&entity->attachment[1], atoi( event->options) );
+
+		MuzzleFlash(entity, 1);
 		break;
 	case 5021:
 		if ( iMuzzleFlash )
 			gEngfuncs.pEfxAPI->R_MuzzleFlash( (float *)&entity->attachment[2], atoi( event->options) );
+
+		MuzzleFlash(entity, 2);
 		break;
 	case 5031:
 		if ( iMuzzleFlash )
 			gEngfuncs.pEfxAPI->R_MuzzleFlash( (float *)&entity->attachment[3], atoi( event->options) );
+
+		MuzzleFlash(entity, 3);
 		break;
 	case 5002:
 		gEngfuncs.pEfxAPI->R_SparkEffect( (float *)&entity->attachment[0], atoi( event->options), -100, 100 );

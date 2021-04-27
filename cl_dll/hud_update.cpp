@@ -42,7 +42,7 @@ int CHud::UpdateClientData(client_data_t *cdata, float time)
 
 	cdata->fov = m_iFOV;
 	
-	v_idlescale = m_iConcussionEffect;
+	v_idlescale = m_iConcussionEffect + ((CVAR_GET_FLOAT("cl_breathe")) ? 0.235 : 0);
 
 	CL_ResetButtonBits( m_iKeyBits );
 

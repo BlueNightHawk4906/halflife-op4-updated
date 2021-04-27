@@ -153,10 +153,12 @@ char* EV_HLDM_HDDecal(pmtrace_t* ptr, physent_t* pe, float* vecSrc, float* vecEn
 		else if (chTextureType == CHAR_TEX_METAL)
 		{
 			sprintf(decalname, "shot_metal");
+			gEngfuncs.pEfxAPI->R_SparkShower(ptr->endpos);
 		}
 		else if (chTextureType == CHAR_TEX_GRATE)
 		{
 			sprintf(decalname, "shot_metal");
+			gEngfuncs.pEfxAPI->R_SparkShower(ptr->endpos);
 		}
 		else if (chTextureType == CHAR_TEX_DIRT)
 		{
@@ -166,6 +168,7 @@ char* EV_HLDM_HDDecal(pmtrace_t* ptr, physent_t* pe, float* vecSrc, float* vecEn
 		else if (chTextureType == CHAR_TEX_VENT)
 		{
 			sprintf(decalname, "shot_metal");
+			gEngfuncs.pEfxAPI->R_SparkShower(ptr->endpos);
 		}
 		else if (chTextureType == CHAR_TEX_TILE)
 		{
@@ -660,8 +663,6 @@ void EV_HLDM_FireBullets( int idx, float *forward, float *right, float *up, int 
 //======================
 void EV_FireGlock1( event_args_t *args )
 {
-
-	return;
 	int idx;
 	Vector origin;
 	Vector angles;
@@ -1584,7 +1585,8 @@ void EV_EgonFire( event_args_t *args )
 	if ( EV_IsLocal( idx ) )
 		gEngfuncs.pEventAPI->EV_WeaponAnimation ( g_fireAnims1[ gEngfuncs.pfnRandomLong( 0, 3 ) ], 1 );
 
-	if ( iStartup == 1 && EV_IsLocal( idx ) && !pBeam && !pBeam2 && !pFlare && cl_lw->value ) //Adrian: Added the cl_lw check for those lital people that hate weapon prediction.
+	// Force prediction
+	if ( iStartup == 1 && EV_IsLocal( idx ) && !pBeam && !pBeam2 && !pFlare )
 	{
 		Vector vecSrc, vecEnd, origin, angles, forward, right, up;
 		pmtrace_t tr;
@@ -2056,6 +2058,7 @@ void EV_FireDisplacer( event_args_t* args )
 			if( EV_IsLocal( args->entindex ) )
 			{
 				gEngfuncs.pEventAPI->EV_WeaponAnimation( DISPLACER_FIRE, 0 );
+				gHUD.m_iConcussionEffect += 1;
 				V_PunchAxis( 0, -2 );
 			}
 

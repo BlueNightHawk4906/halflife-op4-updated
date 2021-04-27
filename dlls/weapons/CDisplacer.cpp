@@ -286,13 +286,13 @@ void CDisplacer::FireThink()
 	m_pPlayer->m_iWeaponVolume = LOUD_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = BRIGHT_GUN_FLASH;
 
-	SendWeaponAnim( DISPLACER_FIRE );
+	//SendWeaponAnim( DISPLACER_FIRE );
 
 	m_pPlayer->SetAnimation( PLAYER_ATTACK1 );
 
 	m_pPlayer->pev->effects |= EF_MUZZLEFLASH;
 
-	EMIT_SOUND( edict(), CHAN_WEAPON, "weapons/displacer_fire.wav", RANDOM_FLOAT( 0.8, 0.9 ), ATTN_NORM );
+//	EMIT_SOUND( edict(), CHAN_WEAPON, "weapons/displacer_fire.wav", RANDOM_FLOAT( 0.8, 0.9 ), ATTN_NORM );
 
 	int flags;
 
@@ -302,10 +302,10 @@ void CDisplacer::FireThink()
 	flags = 0;
 #endif
 
-	/*
+	
 	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_usFireDisplacer, 0,
 		g_vecZero, g_vecZero, 0, 0, static_cast<int>( DisplacerMode::FIRED ), 0, 0, 0 );
-		*/
+		
 
 #ifndef CLIENT_DLL
 	const Vector vecAnglesAim = m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle;

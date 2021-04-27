@@ -154,7 +154,7 @@ void CBaseAnimating :: DispatchAnimEvents ( float flInterval )
 	m_flLastEventCheck = pev->animtime + flInterval;
 
 	m_fSequenceFinished = FALSE;
-	if (flEnd >= 256 || flEnd <= 0.0) 
+	if (flEnd >= 256 || flEnd <= 0.0)
 		m_fSequenceFinished = TRUE;
 
 	int index = 0;
